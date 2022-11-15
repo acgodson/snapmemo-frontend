@@ -44,7 +44,7 @@ function HomePage() {
   const [opened, setOpened] = useState(false);
   const [image, setImage] = useState<any>();
   const [messages, showMessage] = useState<any>();
-  const { user, twitterAuthCredential, createAsset, twitterProvider }: any =
+  const { user, twitterAuthCredential, createAsset, twitterProvider, assetList }: any =
     useContext(GlobalContext);
   const [title, setTitle] = useState<any>();
   const [caption, setCaption] = useState<any>();
@@ -65,8 +65,10 @@ function HomePage() {
   let token =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDgwNDFiQzBlMDdhQUM0ZDQyNGNiRmZEMjBkNTQzQTIyNjQ1RmRkNTgiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Njc5OTQxMDkzNTQsIm5hbWUiOiJzbmFwbWVtbyJ9.hSY_F8uPdPau-izegDVZ5P62H7Z1l_Toh1EZSQG7ueg";
 
-  const accessToken = twitterAuthCredential? twitterAuthCredential.token : "";
-  const accessSecret = twitterAuthCredential? twitterAuthCredential.secret : "";
+  const accessToken = twitterAuthCredential ? twitterAuthCredential.token : "";
+  const accessSecret = twitterAuthCredential
+    ? twitterAuthCredential.secret
+    : "";
 
   async function pushTweet(text: string) {
     try {
@@ -85,7 +87,7 @@ function HomePage() {
         body: raw,
       };
 
-      fetch("https://snapmemo.herokuapp.com/owners/tweet", requestOptions)
+      fetch("http://localhost:4040/owners/tweet", requestOptions)
         .then((response) => response.text())
         .then((result) => console.log(result))
         .catch((error) => console.log("error", error));
@@ -102,72 +104,70 @@ function HomePage() {
     const client = new Web3Storage({ token });
 
     const files = [new File([image], `${user.id}.jpg`)];
-    const cid = "nsvngcnhcghcjfvjv";
-
-    // await client.put(files, {
-    //   wrapWithDirectory: false,ff
-    // });
+    const cid = await client.put(files, {
+      wrapWithDirectory: false,
+    });
 
     console.log("file stored with cid:", cid);
 
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
-
-    //Convert CIDV1 to Bytes
-    const response: any = await fetch("https://snapmemo.herokuapp.com/cid/encode", {
-      method: "POST",
-      headers: myHeaders,
-      body: JSON.stringify({
-        cid: cid,
-      }),
-    });
-
-    if (response) {
-      console.log(response);
-
-      ///Creating NFT Image
-      const metadataObj = {
-        name: title,
-        description: caption,
-        image: `ipfs://${cid}`,
-        image_integrity: `sha256-${response.base64}`,
-        image_mimetype: "image/png",
-        external_url: `https://dweb.link/ipfs/${cid}`,
-        properties: {
-          simple_property: caption,
-        },
-      };
-
-      const blob = new Blob([JSON.stringify(metadataObj)], {
-        type: "application/json",
+    if (cid) {
+      const request: any = await fetch("http://localhost:4040/cid/encode", {
+        method: "POST",
+        headers: myHeaders,
+        body: JSON.stringify({
+          cid: cid,
+        }),
       });
 
-    //Upload NFT metadata to a folder on web3.storage
-      const metaFile = new File([blob], "metadata.json");
-      const metadataCid = await client.put([metaFile], {
-        wrapWithDirectory: true,
-      });
+      const data = request.json();
 
-      if (metadataCid) {
-        console.log(metadataCid);
-        await createAsset(metadataCid);
-        console.log("Asset successfully created");
-        setFetching(false);
-        setCaption("");
-        setTitle("");
+      data.then(async function (response: any) {
+        console.log(response.base64);
+        ///Creating NFT Image
+        const metadataObj = {
+          name: title,
+          description: caption,
+          image: `ipfs://${cid}`,
+          image_integrity: `sha256-${response.base64}`,
+          image_mimetype: "image/png",
+          external_url: `https://dweb.link/ipfs/${cid}`,
+          properties: {
+            simple_property: caption,
+          },
+        };
 
-        toast({
-          title: "Image Shared Successfully",
-          status: "success",
-          duration: 9000,
-          isClosable: true,
+        const blob = new Blob([JSON.stringify(metadataObj)], {
+          type: "application/json",
         });
 
-        const twitterLink = "New NFT photo" + `https://dweb.link/ipfs/${cid}`;
+        //Upload NFT metadata to a folder on web3.storage
+        const metaFile = new File([blob], "metadata.json");
+        const metadataCid = await client.put([metaFile], {
+          wrapWithDirectory: true,
+        });
 
-        //pushTweet(twitterLink);
-      }
+        if (metadataCid) {
+          console.log("metadatcid is : ", metadataCid);
+          await createAsset(metadataCid);
+          console.log("Asset successfully created");
+          toast({
+            title: "Image Shared Successfully",
+            status: "success",
+            duration: 9000,
+            isClosable: true,
+          });
+
+          setFetching(false);
+          setCaption("");
+          setTitle(""); 
+          const twitterLink = "New NFT photo" + `https://dweb.link/ipfs/${cid}`;
+
+          //pushTweet(twitterLink);
+        }
+      });
     }
   }
 
@@ -371,7 +371,7 @@ function HomePage() {
         style={{ zIndex: 10 }}
         ref={myRef}
       >
-        <Gallery onClose ={() => setShowGallery(false)} />
+        <Gallery onClose={() => setShowGallery(false)} />
       </Slide>
     </>
   );

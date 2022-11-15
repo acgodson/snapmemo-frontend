@@ -53,13 +53,11 @@ function SignIn() {
           }
           const user = result.user;
 
-         
-
+  
           const userData = await mapUserData(user);
           const providerData = user.providerData;
-
+ 
           const value = [...providerData ][0];
-
           setTwitterProvider(value);
           localStorage.setItem("twitterProvider", JSON.stringify(value));
           console.log(value);

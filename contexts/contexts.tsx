@@ -14,8 +14,14 @@ export interface AuthContext {
   values: {};
 }
 import RPC from "../utils/algorandRPC";
+import { List } from "@chakra-ui/react";
 
 export const GlobalContext = createContext<AuthContext["values"] | null>(null);
+
+type assetType = {
+  id: string;
+  url: string;
+};
 
 initFirebase();
 const GlobalProvider = ({ children }) => {
@@ -29,6 +35,7 @@ const GlobalProvider = ({ children }) => {
   const [keyPairs, setKeyPairs] = useState<any | null>(null);
   const [balance, setBalance] = useState<any | null>(null);
   const router = useRouter();
+  const [assetList, setAssetList] = useState<any | null>(null);
   const [userObject, setUserObject] = useState({
     country: "",
     email: "",
@@ -169,9 +176,15 @@ const GlobalProvider = ({ children }) => {
     }
   };
 
-  const createAsset = async (cid: string) => {
+  const createAsset = async (cid: string, hash: any) => {
     const rpc = new RPC(provider);
     const result = await rpc.createAsset(cid);
+    return result;
+  };
+
+  const getssetsByName = async () => {
+    const rpc = new RPC(provider);
+    const result = await rpc.lookUpAssetName();
     return result;
   };
 
@@ -308,6 +321,41 @@ const GlobalProvider = ({ children }) => {
     }
   });
 
+  useEffect(() => {
+    function fetchAssets() {
+      const list: any = [];
+      const assets: any = getssetsByName();
+      if (assets) {
+        assets.then((result: any) => {
+          if (result) {
+            const temp = result.assets;
+            temp.forEach(function (value: any) {
+              const { url } = value.params;
+              const cid = url.substring(7);
+              const metadata = fetch(`https://ipfs.io/ipfs/${cid}`)
+                .then((response) => response.text())
+                .then((result) => {
+                  list.push(JSON.parse(result));
+                  
+                })
+                .catch((error) => console.log("error", error));
+           
+            });
+            setAssetList(list);
+          }
+        });
+      }
+    }
+
+    if (!assetList) {
+      fetchAssets();
+    }
+  });
+
+  useEffect(() => {
+    console.log(assetList);
+  }, [assetList]);
+
   return (
     <GlobalContext.Provider
       value={{
@@ -329,6 +377,8 @@ const GlobalProvider = ({ children }) => {
         findAccountsAsset,
         twitterProvider,
         setTwitterProvider,
+        getssetsByName,
+        assetList
       }}
     >
       {children}

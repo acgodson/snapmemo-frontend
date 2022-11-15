@@ -142,22 +142,10 @@ export default class AlgorandRPC {
     const keyPair = await this.getAlgorandKeyPair();
     const client = await this.makeClient();
     const params = await client.getTransactionParams().do();
-    const title = "snapmemory"
-
-    ///Get Base64'
-
-    const hash : any = await fetch("snapmemo.herokuapp.com/cid/encode", {
-        method: "POST",
-        body: JSON.stringify({
-          cid: cid,
-        }),
-      });
-
-    console.log(hash.base64);
 
     var enc = new TextEncoder();
-    const unitName = title.toUpperCase();
-    const assetName = title;
+    const unitName = "SNAP";
+    const assetName = "snap@arc3";
     let assetURL = `ipfs://${cid}/metadata.json`;
     let totalIssuance = 1;
 
@@ -165,7 +153,7 @@ export default class AlgorandRPC {
     let addr = keyPair.addr;
     let defaultFrozen = false;
     let decimals = 0;
-    let assetMetadataHash =  hash.hex;
+    let assetMetadataHash = "";
     let manager = keyPair.addr;
     let reserve = keyPair.addr;
     let freeze = keyPair.addr;
@@ -212,5 +200,15 @@ export default class AlgorandRPC {
   findAssetsOnAccount = async (address: string): Promise<any> => {
     let response = await indexerClient.lookupAccountAssets(address).do();
     console.log(JSON.stringify(response, undefined, 2));
+  };
+
+  lookUpAssetName = async (): Promise<any> => {
+    let name = "snap@arc3";
+    // console.log(
+    //   "Information for Asset Name: " + JSON.stringify(assetInfo, undefined, 2)
+    // );
+    let assetInfo = await indexerClient.searchForAssets().name(name).do();
+    
+    return assetInfo;
   };
 }
