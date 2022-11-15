@@ -142,20 +142,30 @@ export default class AlgorandRPC {
     const keyPair = await this.getAlgorandKeyPair();
     const client = await this.makeClient();
     const params = await client.getTransactionParams().do();
+    const title = "snapmemory"
 
-    console.log(cid);
+    ///Get Base64'
+
+    const hash : any = await fetch("snapmemo.herokuapp.com/cid/encode", {
+        method: "POST",
+        body: JSON.stringify({
+          cid: cid,
+        }),
+      });
+
+    console.log(hash.base64);
+
     var enc = new TextEncoder();
-    const assetName = "snap@arc3";
-    const unitName = "SNAP";
+    const unitName = title.toUpperCase();
+    const assetName = title;
     let assetURL = `ipfs://${cid}/metadata.json`;
-    //let assetMetadataHash = cid.toString();
     let totalIssuance = 1;
 
     let note = enc.encode(cid);
     let addr = keyPair.addr;
     let defaultFrozen = false;
     let decimals = 0;
-    let assetMetadataHash = "";
+    let assetMetadataHash =  hash.hex;
     let manager = keyPair.addr;
     let reserve = keyPair.addr;
     let freeze = keyPair.addr;

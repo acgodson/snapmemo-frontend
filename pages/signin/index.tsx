@@ -19,9 +19,11 @@ const tProvider = new TwitterAuthProvider();
 
 function SignIn() {
   let router = useRouter();
-  function navigate(path: string) {
+  const navigate = (path: string) => {
     router.push(path);
   }
+
+
   const {
     user,
     mapUserData,
@@ -51,19 +53,20 @@ function SignIn() {
           }
           const user = result.user;
 
-          // Sign in web3auth;
-          await loginWeb3(result);
+         
 
           const userData = await mapUserData(user);
           const providerData = user.providerData;
 
-          const value = { ...providerData };
+          const value = [...providerData ][0];
 
           setTwitterProvider(value);
-          localStorage.setItem("twit", JSON.stringify(value));
+          localStorage.setItem("twitterProvider", JSON.stringify(value));
           console.log(value);
           setUserCookie(userData);
           navigate("/home");
+           // Sign in web3auth;
+          await loginWeb3(result);
         })
         .catch((error) => {
           // const errorCode = error.code;
@@ -86,15 +89,11 @@ function SignIn() {
       <Box
         sx={{
           backgroundImage:
-            "  linear-gradient(190deg, #fa7c30 30%, rgba(0, 0, 0, 0)30%), url('/moment3.png')",
+            "linear-gradient(190deg, #fa7c30 30%, rgba(0, 0, 0, 0)30%), url('/moment3.png')",
         }}
-        // as="img"
-        // src="/moment3.png"
-        // "linear-gradient(to bottom, rgba(245, 246, 252, 0.52), rgba(117, 19, 93, 0.73)), url('images/background.jpg')",
-
         position={"absolute"}
         left={0}
-        h={["auto", "auto", "100vh"]}
+        h={["50%", "50%", "100vh"]}
         w="100%"
         opacity={0.2}
       />
@@ -106,8 +105,8 @@ function SignIn() {
       >
         <Box w={["100%", "100%", "50%"]} pl={[0, 0, 6]}>
           <HStack w="100%" h="80px" px={[6, 6, 0]}>
-            <Box as="span" display={["block", "block", "block"]}>
-              <Box as="img" alt="menu" src="/logo.png" h={"60px"} w="auto" />
+            <Box w='100%' as="span" display={["flex", "flex", "block"]} justifyContent='center'>
+              <Box as="img" alt="menu" src="/logo.png" h={['40px', '40px', "60px"]} w="auto" />
             </Box>
           </HStack>
 

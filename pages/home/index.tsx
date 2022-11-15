@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import {
   Box,
   HStack,
@@ -28,8 +34,8 @@ import NavBar from "components/navbar";
 import MenuSection from "components/menusection";
 import Camera from "components/camera";
 import { Web3Storage } from "web3.storage";
-import bs58 from "bs58";
 import { GlobalContext } from "contexts/contexts";
+import Gallery from "pages/gallery";
 
 function HomePage() {
   const { isOpen, onToggle, onOpen, onClose } = useDisclosure();
@@ -43,39 +49,24 @@ function HomePage() {
   const [title, setTitle] = useState<any>();
   const [caption, setCaption] = useState<any>();
   const [fetching, setFetching] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
 
   //   const [files, setFiles] = useState([]);
-  const fileRef = React.useRef(null);
+  const fileRef = useRef(null);
 
-  const capture = React.useCallback(() => {
+  const capture = useCallback(() => {
     const imageSrc = fileRef.current.files[0];
     setImage(imageSrc);
-    console.log(imageSrc);
   }, [fileRef]);
 
-  const convertIpfsCidV0ToByte32 = (cid: string) => {
-    let hex = `${bs58.decode(cid).slice(2).toString()}`;
-    let base64 = `${bs58.decode(cid).slice(2).toString()}`;
-    console.log("CID Hash Converted to hex: ", hex);
-
-    const buffer = Buffer.from(bs58.decode(cid).slice(2).toString(), "base64");
-    console.log("CID Hash Converted to Base64: ", base64);
-    const volBytes = buffer.length;
-    console.log(
-      "CID Hash Bytes volume is: ",
-      `${volBytes} bytes, OK for ASA MetaDataHash field!`
-    );
-
-    return { base64, hex, buffer };
-  };
+  const myRef = useRef(null);
+  const executeScroll = () => myRef.current.scrollIntoView();
 
   let token =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDgwNDFiQzBlMDdhQUM0ZDQyNGNiRmZEMjBkNTQzQTIyNjQ1RmRkNTgiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Njc5OTQxMDkzNTQsIm5hbWUiOiJzbmFwbWVtbyJ9.hSY_F8uPdPau-izegDVZ5P62H7Z1l_Toh1EZSQG7ueg";
 
-  const accessToken = twitterAuthCredential ? twitterAuthCredential.token : "";
-  const accessSecret = twitterAuthCredential
-    ? twitterAuthCredential.secret
-    : "";
+  const accessToken = twitterAuthCredential? twitterAuthCredential.token : "";
+  const accessSecret = twitterAuthCredential? twitterAuthCredential.secret : "";
 
   async function pushTweet(text: string) {
     try {
@@ -94,7 +85,7 @@ function HomePage() {
         body: raw,
       };
 
-      fetch("https://snapmemo.herokuapp.com/tweet", requestOptions)
+      fetch("https://snapmemo.herokuapp.com/owners/tweet", requestOptions)
         .then((response) => response.text())
         .then((result) => console.log(result))
         .catch((error) => console.log("error", error));
@@ -111,61 +102,72 @@ function HomePage() {
     const client = new Web3Storage({ token });
 
     const files = [new File([image], `${user.id}.jpg`)];
-    const cid = await client.put(files, {
-      wrapWithDirectory: false,
-    });
+    const cid = "nsvngcnhcghcjfvjv";
+
+    // await client.put(files, {
+    //   wrapWithDirectory: false,ff
+    // });
 
     console.log("file stored with cid:", cid);
 
-    ///Creating NFT Image
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-    let integrity = convertIpfsCidV0ToByte32(cid);
 
-    const metadataObj = {
-      name: title,
-      description: caption,
-      image: `ipfs://${cid}`,
-      image_integrity: `sha256-${integrity.base64}`,
-      image_mimetype: "image/png",
-      external_url: `https://dweb.link/ipfs/${cid}`,
-      properties: {
-        file_url: "arc3-asa",
-        file_url_integrity: "sha256-48DEQpj8HBSa...",
-        file_url_mimetype: "image/png",
-      },
-    };
-
-    //Upload NFT metadata to a folder
-    const blob = new Blob([JSON.stringify(metadataObj)], {
-      type: "application/json",
+    //Convert CIDV1 to Bytes
+    const response: any = await fetch("https://snapmemo.herokuapp.com/cid/encode", {
+      method: "POST",
+      headers: myHeaders,
+      body: JSON.stringify({
+        cid: cid,
+      }),
     });
 
-    const metaFile = new File([blob], "metadata.json");
-    const mCid = await client.put([metaFile], {
-      wrapWithDirectory: true,
-    });
+    if (response) {
+      console.log(response);
 
-    console.log(mCid);
+      ///Creating NFT Image
+      const metadataObj = {
+        name: title,
+        description: caption,
+        image: `ipfs://${cid}`,
+        image_integrity: `sha256-${response.base64}`,
+        image_mimetype: "image/png",
+        external_url: `https://dweb.link/ipfs/${cid}`,
+        properties: {
+          simple_property: caption,
+        },
+      };
 
-    if (mCid) {
-      console.log(mCid);
-      const nID = await createAsset(mCid);
-      console.log("Asset successfully created");
-      setFetching(false);
-      setCaption("");
-      setTitle("");
-
-      toast({
-        title: "Image Shared Successfully",
-
-        status: "success",
-        duration: 9000,
-        isClosable: true,
+      const blob = new Blob([JSON.stringify(metadataObj)], {
+        type: "application/json",
       });
 
-      const chec = "New NFT photo" + `https://dweb.link/ipfs/${cid}`;
+    //Upload NFT metadata to a folder on web3.storage
+      const metaFile = new File([blob], "metadata.json");
+      const metadataCid = await client.put([metaFile], {
+        wrapWithDirectory: true,
+      });
 
-      pushTweet(chec);
+      if (metadataCid) {
+        console.log(metadataCid);
+        await createAsset(metadataCid);
+        console.log("Asset successfully created");
+        setFetching(false);
+        setCaption("");
+        setTitle("");
+
+        toast({
+          title: "Image Shared Successfully",
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
+
+        const twitterLink = "New NFT photo" + `https://dweb.link/ipfs/${cid}`;
+
+        //pushTweet(twitterLink);
+      }
     }
   }
 
@@ -290,9 +292,12 @@ function HomePage() {
               bg="gray.300"
               color="black"
             >
-              <Button className="home-button">
+              <Button
+                className="home-button"
+                onClick={() => setShowGallery(true)}
+              >
                 <Box as="img" src="/open-gallery.png"></Box>
-                Open Gallery
+                Open Memories
               </Button>
             </Tooltip>
           </Stack>
@@ -360,6 +365,14 @@ function HomePage() {
           </ModalContent>
         </Modal>
       </VStack>
+      <Slide
+        direction="bottom"
+        in={showGallery}
+        style={{ zIndex: 10 }}
+        ref={myRef}
+      >
+        <Gallery onClose ={() => setShowGallery(false)} />
+      </Slide>
     </>
   );
 }
