@@ -3,7 +3,7 @@
   "author": "tinybird",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && next export",
     "start": "next start",
     "lint": "next lint",
     "dev-ssl": "(local-ssl-proxy --source 3001 --target 3000 ) & next dev"
