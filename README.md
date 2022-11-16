@@ -54,41 +54,37 @@ A preview of website is hosted on ipfs on fleek.co
 
 ```
 
-- **Converting web3Storage CIDv1 to 32 bytes string to fit ASA standard (Algorand asset standard)**
-
-```
-import CID from 'cids';
-
-   function hexToBase64(hexStr) {
-        let base64 = "";
-        for (let i = 0; i < hexStr.length; i++) {
-            base64 += !((i - 1) & 1)
-                ? String.fromCharCode(parseInt(hexStr.substring(i - 1, i + 1), 16))
-                : "";
-        }
-        return btoa(base64);
-
- const hex = new CID(cid).toString('base16').substring(9)
-
-        let base64 = hexToBase64(hex);
-
-        const buffer = Buffer.from(base64, "base64");
-        const response = JSON.stringify({
-            base64: base64,
-            hex: hex,
-            buffer: buffer.length
-        });
-
-```
-
-
 ## Tools
     snapmemo was boostrapped using NExtjs and Chakra UI
 
+### Intergrations
+ - Web3.Storage
+ - Web3Auth
+ - Firebase JWT
+ - AlgoSDK
+ - AlgoIndexer
 
 ## Testing
 
 - To run server locally, glone the repository. Run `npm install` and `npm run dev` 
+
+
+## Screens
+
+![social-login](/shots/welcome.jpg)
+
+
+![home](/shots/home.jpg)
+
+![new-photo](/shots/newphoto.jpg)
+
+![upload](/shots/upload.jpg)
+
+![asset-created](/shots/success.jpg)
+
+![gallery](/shots/gallery.jpg)
+
+![Tweet](/shots/tweet.jpg)
 
 
 ## Links

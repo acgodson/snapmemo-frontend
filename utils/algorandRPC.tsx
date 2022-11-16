@@ -145,7 +145,7 @@ export default class AlgorandRPC {
 
     var enc = new TextEncoder();
     const unitName = "SNAP";
-    const assetName = "snap@arc3";
+    const assetName = "snpp@arc3";
     let assetURL = `ipfs://${cid}/metadata.json`;
     let totalIssuance = 1;
 
@@ -203,7 +203,7 @@ export default class AlgorandRPC {
   };
 
   lookUpAssetName = async (): Promise<any> => {
-    let name = "snap@arc3";
+    let name = "snpp@arc3";
     // console.log(
     //   "Information for Asset Name: " + JSON.stringify(assetInfo, undefined, 2)
     // );

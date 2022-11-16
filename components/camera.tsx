@@ -58,10 +58,11 @@ const Camera = () => {
             <Button
               my={6}
               colorScheme="blue"
-              onClick={(e) => {
-                e.preventDefault();
-                capture();
-              }}
+              disabled={true}
+              // onClick={(e) => {
+              //   e.preventDefault();
+              //   capture();
+              // }}
             >
               Capture
             </Button>
@@ -82,6 +83,7 @@ const Camera = () => {
             <Button
               my={6}
               colorScheme="blue"
+              // disabled={true}
               onClick={(e) => {
                 e.preventDefault();
                 capture();

@@ -36,6 +36,7 @@ import Camera from "components/camera";
 import { Web3Storage } from "web3.storage";
 import { GlobalContext } from "contexts/contexts";
 import Gallery from "pages/gallery";
+import { access } from "fs";
 
 function HomePage() {
   const { isOpen, onToggle, onOpen, onClose } = useDisclosure();
@@ -44,8 +45,13 @@ function HomePage() {
   const [opened, setOpened] = useState(false);
   const [image, setImage] = useState<any>();
   const [messages, showMessage] = useState<any>();
-  const { user, twitterAuthCredential, createAsset, twitterProvider, assetList }: any =
-    useContext(GlobalContext);
+  const {
+    user,
+    twitterAuthCredential,
+    createAsset,
+    twitterProvider,
+    assetList,
+  }: any = useContext(GlobalContext);
   const [title, setTitle] = useState<any>();
   const [caption, setCaption] = useState<any>();
   const [fetching, setFetching] = useState(false);
@@ -62,8 +68,7 @@ function HomePage() {
   const myRef = useRef(null);
   const executeScroll = () => myRef.current.scrollIntoView();
 
-  let token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDgwNDFiQzBlMDdhQUM0ZDQyNGNiRmZEMjBkNTQzQTIyNjQ1RmRkNTgiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Njc5OTQxMDkzNTQsIm5hbWUiOiJzbmFwbWVtbyJ9.hSY_F8uPdPau-izegDVZ5P62H7Z1l_Toh1EZSQG7ueg";
+  let token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweDgwNDFiQzBlMDdhQUM0ZDQyNGNiRmZEMjBkNTQzQTIyNjQ1RmRkNTgiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2Njc5OTQxMDkzNTQsIm5hbWUiOiJzbmFwbWVtbyJ9.hSY_F8uPdPau-izegDVZ5P62H7Z1l_Toh1EZSQG7ueg";
 
   const accessToken = twitterAuthCredential ? twitterAuthCredential.token : "";
   const accessSecret = twitterAuthCredential
@@ -71,6 +76,8 @@ function HomePage() {
     : "";
 
   async function pushTweet(text: string) {
+    console.log(accessToken);
+    console.log(accessSecret);
     try {
       var myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
@@ -87,7 +94,7 @@ function HomePage() {
         body: raw,
       };
 
-      fetch("http://localhost:4040/owners/tweet", requestOptions)
+      fetch("https://snapmemo.herokuapp.com/owners/tweet", requestOptions)
         .then((response) => response.text())
         .then((result) => console.log(result))
         .catch((error) => console.log("error", error));
@@ -114,7 +121,7 @@ function HomePage() {
     myHeaders.append("Content-Type", "application/json");
 
     if (cid) {
-      const request: any = await fetch("http://localhost:4040/cid/encode", {
+      const request: any = await fetch("https://snapmemo.herokuapp.com/cid/encode", {
         method: "POST",
         headers: myHeaders,
         body: JSON.stringify({
@@ -162,10 +169,11 @@ function HomePage() {
 
           setFetching(false);
           setCaption("");
-          setTitle(""); 
-          const twitterLink = "New NFT photo" + `https://dweb.link/ipfs/${cid}`;
+          setTitle("");
+          const twitterLink =
+            "New NFT photo" + " " + `https://dweb.link/ipfs/${cid}`;
 
-          //pushTweet(twitterLink);
+           pushTweet(twitterLink);
         }
       });
     }
@@ -174,14 +182,6 @@ function HomePage() {
   useEffect(() => {
     console.log(user);
   }, []);
-
-  function showLink(url: string) {
-    showMessage(
-      <Box as="span">
-        &gt; 🔗 <a href={url}>{url}</a>
-      </Box>
-    );
-  }
 
   useEffect(() => {
     if (!isOpen) {
@@ -316,50 +316,70 @@ function HomePage() {
             <ModalCloseButton />
             <ModalBody>
               <>
-                <Box
-                  w="100%"
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                >
-                  <Tabs>
-                    <TabList>
-                      <Tab>Camera</Tab>
-                      <Tab>Device</Tab>
-                    </TabList>
+                {!fetching && (
+                  <Box
+                    w="100%"
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <Tabs>
+                      <TabList>
+                        <Tab>Camera</Tab>
+                        <Tab>Device</Tab>
+                      </TabList>
 
-                    <TabPanels>
-                      <TabPanel>
-                        <Camera />
-                      </TabPanel>
-                      <TabPanel>
-                        <>
-                          {messages && <Box as="div">{messages}</Box>}
+                      <TabPanels>
+                        <TabPanel>
+                          <Camera />
+                        </TabPanel>
+                        <TabPanel>
+                          <>
+                            {messages && <Box as="div">{messages}</Box>}
 
-                          <Input
-                            className="hidden"
-                            type="file"
-                            id="file-input"
-                            accept=".jpeg,.jpg,.png,.gif,image/*"
-                            ref={fileRef}
-                            onChange={(e) => capture()}
-                          />
+                            <Input
+                              className="hidden"
+                              type="file"
+                              id="file-input"
+                              accept=".jpeg,.jpg,.png,.gif,image/*"
+                              ref={fileRef}
+                              onChange={(e) => capture()}
+                            />
 
-                          {image && (
-                            <Button
-                              alignSelf="center"
-                              my={6}
-                              colorScheme="blue"
-                              onClick={() => handleSubmit()}
-                            >
-                              Continue
-                            </Button>
-                          )}
-                        </>
-                      </TabPanel>
-                    </TabPanels>
-                  </Tabs>
-                </Box>
+                            {image && (
+                              <Button
+                                alignSelf="center"
+                                my={6}
+                                colorScheme="blue"
+                                onClick={() => handleSubmit()}
+                              >
+                                Continue
+                              </Button>
+                            )}
+                          </>
+                        </TabPanel>
+                      </TabPanels>
+                    </Tabs>
+                  </Box>
+                )}
+
+                {fetching && (
+                  <VStack
+                    className="loader"
+                    w="100%"
+                    h="40vh"
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    <Box
+                      as="img"
+                      src="/loading.gif"
+                      alt="bgg"
+                      height="auto"
+                      width="250px"
+                    />
+                  </VStack>
+                )}
               </>
             </ModalBody>
           </ModalContent>

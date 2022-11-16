@@ -90,7 +90,7 @@ const Gallery = (props: { onClose: () => void }) => {
                     >  
                       <Text></Text>
                       <Box>
-                        <Box display="flex" alignItems={"center"}>
+                        <Box display="flex" alignItems={"center"} color="white">
                           owner:
                           <Box
                             as="img"
