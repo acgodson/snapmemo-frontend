@@ -4,13 +4,13 @@
 
 
 ## Inspiration
-Whether it's the world cup, or a music concert, or some lonely time with nature, sometimes we are lucky enough to capture truly remarkable moments in photographs. Some of these photos go viral as memes as soon as they're shared on social media - but with little credit given to the true owner.
+Whether it's the world cup, a music concert, or some lonely time with nature, sometimes we are lucky enough to capture remarkable moments in photographs. Some of these photographs go viral as memes as soon as they're shared on social media - but with little credit given to the true owner.
 
-Snapmemo is inspired to let users stamp a digital ownership to their photos saved on web3.storage by creating NFTs of these photographs before sharing on social media (twitter)
+Snapmemo is inspired to let users stamp digital ownership to all their photos saved on web3.storage by creating NFTs of these photographs before sharing on social media (twitter)
 
-Photos are saved on web3.storage when uploaded, and corresponding NFT metadata is stored in a seperate directory on web3.storage. When a digital asset (NFT) is successfully created, a tweet with links to the photo is shared automatically on twitter. 
+Photos are saved on web3.storage when uploaded, and subsequent metadata is stored in a seperate directory on web3.storage. When a digital asset (NFT) is successfully created, a tweet with link to that photo is shared automatically on twitter. 
 
-Each users personal gallery on the web retreives metadata hashes by quering assets created by each users  unique asset name
+Each users gallery can retreive all metadata collectively by quering assets created by a unique asset name on the blockchain.
 
 ## Revolutionalizing mobile photography, whilst leveraging NFTs and Web3.storage
 
@@ -26,7 +26,7 @@ Each users personal gallery on the web retreives metadata hashes by quering asse
 ## Leveraging IPFS and WEB3.storage
 
 - **Hosting**
-A preview of website is hosted on ipfs on fleek.co
+A preview of  [website](https://tiny-sea-0572.on.fleek.co/) is hosted on ipfs on fleek.co
 
 - **Photo Storage with Web3.storage**
 
