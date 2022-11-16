@@ -1,6 +1,6 @@
 ![welcome](/shots/logo.png)
 
-## Snapmemo allows users to save, share and keep track of memorable photos as digital assets on blockchain and web3.storage
+## Snapmemo allows users to save, share and keep track of photographs stored on web3.storage by creating digital assets on the blockchain.
 
 
 ## Inspiration
